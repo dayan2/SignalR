@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <link href="Content/Bootstrap-theme.css" rel="stylesheet" />
+
+</head>
+<body>
+    <h2>SignalR - Monitor</h2>
+    <ul id="messages"></ul>
+
+
+
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <script src="signalr/hubs"></script>
+    <script type="text/javascript">
+
+        var monitor;
+
+        (function () {
+            //declaring the connection to the 'monitor' hubClass
+            monitor = $.connection.monitor;
+            
+            //Getting Event details from the 'SendMonitoringData()' in chatHub class(which is connected to the monitorHub)
+            monitor.client.newEvent = onNewEvent;
+
+            //start the negotiation between client and server
+            $.connection.hub.start();
+        })();
+
+        function onNewEvent(eventType, client) {
+            //EventType will give info about user connected and Disconnected status,
+            //client - is the ConnectionID
+            $('#messages').append('<li>' + eventType + ' from ' + client + '</li>');
+        };
+
+    </script>
+</body>
+</html>

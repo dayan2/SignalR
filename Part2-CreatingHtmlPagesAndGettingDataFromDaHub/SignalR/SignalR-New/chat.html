@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Chat Room</title>
+    <link href="Content/Bootstrap-theme.css" rel="stylesheet" />
+
+</head>
+<body>
+    <h2>Chat Room</h2>
+
+    Room:  <input type="text" id="rooom" />
+    <input type="submit" id="join" value="join" /> <br /><br />
+
+    <input type="text" id="msg" />
+    <input type="submit" id="send" value="send" />
+    <input type="submit" id="sendMessageToRoom" value="send Message to room" />
+
+    <ul id="messages"></ul>
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <script src="signalr/hubs"></script>
+    <script type="text/javascript">
+        var chat;
+
+        $(document).ready(function () {
+            //prints logging details in the console
+            $.connection.hub.logging = true;
+
+            //defining the 'chatHub'
+            chat = $.connection.chat;
+
+            //if a message comes to the 'SendMessage()' in ChatHub class, it will send that message back to the client-side(html page) through 'newMessage()',
+            //And that message will be appended into the <ul>
+            chat.client.newMessage = onNewMessage;
+
+            $('#join').click(onJoin);
+            $('#send').click(onSend);
+            $('#sendMessageToRoom').click(onSendPrivate);
+
+
+            //this start the negotiation between client and server
+            $.connection.hub.start({ transport: 'longPolling' });
+
+        });
+
+
+        function onNewMessage(message) {
+            $('#messages').append('<li>' + message + '</li>');
+        };
+
+        function onSend() {
+            //sending the value to the chatHub 'sendMessage' method
+            chat.server.sendMessage($('#msg').val());//when ur calling the server method all ways start with simple letter
+        };
+
+        function onJoin() {
+            //sending the textbox value to the server-side(ChatHub) 'JoinRoom()'
+            chat.server.joinRoom($('#rooom').val());//when ur calling the server method all ways start with simple letter
+        };
+
+        function onSendPrivate() {
+            //sending data to 'SendMessageToRoom()' in ChatHub
+            chat.server.sendMessageToRoom($('#rooom').val(), $('#msg').val());//when ur calling the server method all ways start with simple letter
+        };
+
+        //error
+        $.connection.hub.error(function (err) {
+            alert("An error Occurred:  " + err);
+        });
+
+
+
+    </script>
+
+</body>
+</html>

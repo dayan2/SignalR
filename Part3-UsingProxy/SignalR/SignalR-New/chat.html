@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Chat Room</title>
+    <link href="Content/Bootstrap-theme.css" rel="stylesheet" />
+
+</head>
+<body>
+    <h2>Chat Room</h2>
+
+    <div >
+        <input type="text" id="msg" />
+        <input type="button" id="send" value="Send Message " />
+
+
+        <ul id="messages"></ul>
+    </div>
+
+
+    <script src="Scripts/jquery-1.10.2.js"></script>
+    <script src="Scripts/jquery.signalR-2.2.0.min.js"></script>
+    <script src="Scripts/bootstrap.min.js"></script>
+    <!--<script src="signalr/hubs"></script>-->
+    <script type="text/javascript">
+
+        //In this example we are going to get rid of the script file("signalr/hubs") and use a proxy to do it's work
+        var proxy;
+
+        $(document).ready(function () {
+            //prints logging details in the console
+            $.connection.hub.logging = true;
+
+            //Creating a HubConnection....
+            var connection = $.hubConnection();
+
+            //Using the HubConnection creating a proxy called 'chat' (which is are HubClass name)
+            proxy = connection.createHubProxy('chat');
+            //then u wire-up the methods
+            proxy.on('newMessage' , onNewMessage);
+
+            $('#send').click(onSend);
+
+
+            //this start the negotiation between client and server
+            connection.start();
+
+        });
+
+
+        function onNewMessage(message) {
+            $('#messages').append('<li>' + message + '</li>');
+        };
+
+        function onSend() {
+            //sending the value to the chatHub 'sendMessage' method
+            proxy.invoke('sendMessage' , $('#msg').val());//when ur calling the server method all ways start with simple letter
+        };
+
+
+        //error
+        $.connection.hub.error(function (err) {
+            alert("An error Occurred:  " + err);
+        });
+
+
+
+    </script>
+
+</body>
+</html>
